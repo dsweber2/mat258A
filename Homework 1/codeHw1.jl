@@ -61,11 +61,12 @@ PyPlot.show()
 # I'm somewhat confused why this solution is so similar to zero
 
 # Plot the Log Barrier Solution
-r= -5:.1/50:5;
+r= -1:.1/50:1;
 plt[:hist](xDead.value, 125, facecolor="w");
-plot(r,  λ*max(abs(r).-1,0), "k");
-axis([-2,2,0,5]);
-title(L"$\min\Vert Ax-b\Vert_2+\lambda\big(\log(x$ with $\lambda=.5$");
-ylabel(L"100\lambda",fontsize=14)
+plot(r,  -λ*(log(r+1)+log(1-r)), "k");
+axis([-1,1,0,3]);
+title(L"$\min\Vert Ax-b\Vert_2-\lambda\Vert\log(x+1)\Vert_1 - \lambda\Vert\log(1-x)\Vert_1$ with $\lambda=.5$");
+ylabel(L"\lambda",fontsize=14)
 xlabel(L"x", fontsize=14)
 PyPlot.show()
+
