@@ -8,4 +8,7 @@ function simpleProblem(x)
   return (f, g, H);
 end
 
-newtmin(simpleProblem, [-1,136, 161])
+out = newtmin(simpleProblem, [-1,136, 161]')
+
+norm(out[1]-[-1,100,3]',2)
+
