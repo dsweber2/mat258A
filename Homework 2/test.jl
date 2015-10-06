@@ -8,6 +8,7 @@ function simpleProblem(x)
   return (f, g, H);
 end
 
+<<<<<<< HEAD
 out = newtmin(simpleProblem, [-5 136 157]')
 norm(out[1]-[-1,100,3]',2)
 
@@ -35,3 +36,6 @@ while (norm(x)>=ϵ) & (i<=maxIter)
     i+=1;
   end
 
+=======
+newtmin(simpleProblem, [-1,136, 161])
+>>>>>>> parent of 72c1a48... Small issue
