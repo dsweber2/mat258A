@@ -13,8 +13,8 @@ function newtmin(obj, x0, maxIter=100000,ϵ=1e-10)
     (f, g, H) = obj(x);
     Δx = H\g # calculate the change in x
     # check if we can stop (i.e., the error due to our second order approximation is smaller than our error tolerance)
-    decrement = g'*Δx;
-    if norm(decrement,2) < ϵ
+    decrement = g'*Δx
+    if decrement/2 < ϵ
       break;
     end
     x = x - Δx;
