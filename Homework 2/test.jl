@@ -1,18 +1,31 @@
 include("newtMin.jl")
 function simpleProblem(x)
   # evaluate the function f(x)=‖x-y_0‖^4, the gradient 2x, and the Hessian 2*Id
-  y0 = [-1 100 3]';
-  f = norm(x-y0, 2)^4;
-  g = 4*norm(x-y0, 2)^2*(x-y0);
+  y0 = [-1 100 3]'
+  f = norm(x-y0, 2)^4
+  g = 4*norm(x-y0, 2)^2*(x-y0)
   H = 8*(x-y0)*(x-y0)'
-  return (f, g, H);
+  return (f, g, H)
 end
 
-<<<<<<< HEAD
-out = newtmin(simpleProblem, [-5 136 157]')
+function simplestProblem(x)
+  # evaluate the function f(x)=‖x-y_0‖^4, the gradient 2x, and the Hessian 2*Id
+  y0 = [-1 100 3]';
+  f = norm(x-y0, 2)^2;
+  g = 2(x-y0);
+  H = 2eye(3)
+  return (f, g, H);
+end
+out = newtmin(simplestProblem, [-34 129 128]')
 norm(out[1]-[-1,100,3]',2)
+y0 = [-1 100 3]'
+f = norm([-5, 136, 157]-y0, 2)^4
 
-
+prob = [128 -1152 -4928
+ -1152 10368 44352
+ -4928 44352 189728]
+factorize(prob)
+det(prob)
 w=[1 2 3]'
 
 w*w'
