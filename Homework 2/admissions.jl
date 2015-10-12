@@ -21,6 +21,7 @@ end
 (minn,path,err) = gradientDescent(LogRegress,[.5 .5 .5]')
 minn
 path
+err
 
 # Graph the path of the parameters
 fV=path[:,end]

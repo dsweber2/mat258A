@@ -1,4 +1,4 @@
-function gradientDescent(obj, x0, maxIter=10000, ϵ=1e-10)
+function gradientDescent(obj, x0, maxIter=10000000, ϵ=1e-10)
 # returns (minn, path, error) where min is the minimum value, path is the set of points visited in minimizing obj,
 #    and err is norm of the gradient in the last step
 # obj: evaluates the function and it's gradient at any given point, returns them as (minn, gradf)
