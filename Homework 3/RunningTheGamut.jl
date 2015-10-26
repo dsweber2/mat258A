@@ -83,8 +83,9 @@ function newtMin(obj, x0, maxIter=1000,ϵ=1e-16,BFGS=0)
       minn = f
       break
     end
-    # Do a backtracking line search to find an appropriate \alpha to scale by
+    # Do a inexact linesearch to find the appropriate α
     α = 1
+    αlow = 0
     frac = .0000001
     β= .75
     while obj(x-α*Δx)[1]>(f+frac.*α.*▽'*Δx)[1]
@@ -107,3 +108,13 @@ for i=1:18
     (ii, minn, path, err) = newtMin(x->(p.obj(x),p.grd(x),p.hes(x)),x0);
     t2 = vcat(t,[minn, ii, err[end]]'')
 end
+
+A^-1
+e
+x=[1]
+x = hcat(x, 2*x[end]-e*x[end]^2)
+
+y=[.3]
+
+y = hcat(y, 2*y[end]-e*y[end]^2)
+

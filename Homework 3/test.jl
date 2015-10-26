@@ -9,14 +9,14 @@ function simpleProblem(x)
 end
 
 function simplestProblem(x)
-  # evaluate the function f(x)=‖x-y_0‖^4, the gradient 2x, and the Hessian 2*Id
+  # evaluate the function f(x)=‖x-y_0‖^2, the gradient 2x, and the Hessian 2*Id
   y0 = [-1 100 3]';
   f = norm(x-y0, 2)^2;
   g = 2(x-y0);
   H = 2eye(3)
   return (f, g, H);
 end
-out = newtmin(simpleProblem, [-34 129 128]',10,1e-16,1)
+out = newtMin(simplestProblem, [-34 129 128]',10,1e-16,0)
 norm(out[1]-[-1,100,3]',2)
 y0 = [-1 100 3]'
 f = norm([-5, 136, 157]-y0, 2)^4
