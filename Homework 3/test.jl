@@ -16,7 +16,7 @@ function simplestProblem(x)
   H = 2eye(3)
   return (f, g, H);
 end
-out = newtMin(simplestProblem, [-34 129 128]',10,1e-16,0)
+include("newtMin.jl"); out = newtMin(simplestProblem, [-34 129 128]',10,1e-16,0)
 norm(out[1]-[-1,100,3]',2)
 y0 = [-1 100 3]'
 f = norm([-5, 136, 157]-y0, 2)^4

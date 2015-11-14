@@ -52,35 +52,3 @@ while (norm(x)>=ϵ) & (i<=maxIter)
 =======
 newtmin(simpleProblem, [-1,136, 161])
 >>>>>>> parent of 72c1a48... Small issue
-
-
-
-chol()
-A = [200.0 -1591.5494309189535 0.0
- -1591.5494309189535 506.60591821168896 318.3098861837907
- 0.0 318.3098861837907 202.0]
-F = svdfact(A)
-
-F[:U]
-
-F[:S]
-F[:V]
-F[:Vt]
-
-F[:U]*diagm(F[:S])*F[:Vt]
-chol(A)
-(D,V) =eig(A)
-
-D
-
-V
-
-(D, V) = eig(A)
-V*diagm(D)*V'
-V*diagm(abs(D))*V'
-
-factorize
-max(D,.0001)
-
-max(abs(D),.0001)
-

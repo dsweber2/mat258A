@@ -43,7 +43,7 @@ function newtMin(obj, x0, maxIter=10,ϵ=1e-16,BFGS=0)
       try
         H = chol(H)
         (D, V) = eig(H)
-        println("cholesky works, apparently, but round=",i," Eigenvalues: ", D)
+        #println("cholesky works, apparently, but round=",i," Eigenvalues: ", D)
         B = H
         #B = V*diagm(max(abs(D),1))*V'
       catch
@@ -53,7 +53,7 @@ function newtMin(obj, x0, maxIter=10,ϵ=1e-16,BFGS=0)
         #B = V*diagm(max(abs(D).^2,1))*V'
         #B = V*diagm(max(D,.000000001))*V'
         B = V*diagm(max(abs(D),.000000001))*V'
-        println("round:", i," Eigenvalues:", D)
+        #println("round:", i," Eigenvalues:", D)
       end
       Δx = B\▽ # calculate the change in x
     end
@@ -61,60 +61,107 @@ function newtMin(obj, x0, maxIter=10,ϵ=1e-16,BFGS=0)
     decrement = -▽'*Δx
     err = hcat(err,norm(decrement,2))
     minn = f
-    if norm(decrement, 2)/2 < ϵ
-      minn = f
+    if norm(decrement,2)<ϵ
       break
     end
-
     # Do a inexact linesearch with Wolfe condtions to find the appropriate α
     α = 1
     c = .000000001
-    η = .01
-    β= .5
-    if BFGS==1
+    η = .9
+    β= .9
+    if BFGS==-1
+      α=1
+    elseif BFGS==1
       k=0.0
       αlow = 0
-      αtemp = 1
-      a = obj(x-α*Δx)[2]'*Δx
+      αmax = 1
+      αtemp = αmax
+      ψlow = f
+      β=1/16
+      α = αmax*β
       b = decrement
-      println("a: ", a)
-      println("b: ", b)
-      while ((abs(a[1]) > η.*abs(b[1])) | (1.0*obj(x-α*Δx)[1]>(f+c.*αtemp.*▽'*Δx)[1]))
-        if αtemp>1
-          α=1
-          println("WE BROKE IT")
+      while 1>0
+        (ψα, ψp, bler) = obj(x-αmax*Δx)
+        a = ψp'*Δx
+        #println("a: ", a)
+        #println("b: ", b)
+        # if the objective function has gotten too large by moving the interval away, use the last interval
+        if (ψα > (f+c.*α.*▽'*Δx)[1])
+          #println("objective function is too large αlow=", αlow, " α=", α)
+          α = zoom(αlow, α, obj, ▽, Δx, ψlow, a, b, η, c, x, f)
           break
         end
-        println(αtemp)
-        if a[1] < 0 & (1.0*obj(x-α*Δx)[1]>(f+c.*αtemp.*▽'*Δx)[1])
-          αlow = αtemp
-          αtemp = sqrt(αtemp)
-        else
-          α = αtemp
-          αtemp *= β
+        if abs(a[1]) <= η.*abs(b[1]) # we satisfy both conditions!
+          #println("Satisfy both conditions! α=",α)
+          break
+        elseif a[1]>=0 #the derivative is positive
+          #println("The derivative is positive")
+          α = zoom(αlow, α, obj, ▽, Δx, ψlow, a, b, η, c, x, f)
+          break
         end
-        a = obj(x-αtemp*Δx)[2]'*Δx
-        k+=1
+        αlow = α
+        ψlow = ψα
+        α += (αmax-α)*β # interpolation of some kind would make this more effective
       end
+#       while ((abs(a[1]) > η.*abs(b[1])) | (1.0*obj(x-α*Δx)[1]>(f+c.*αtemp.*▽'*Δx)[1])) & bool(k<100)
+#         if αtemp>1
+#           α=1
+#           println("WE BROKE IT")
+#           break
+#         end
+#         #println(αtemp)
+#         if ((a[1] < 0) & (1.0*obj(x-α*Δx)[1]<(f+c.*αtemp.*▽'*Δx)[1]))
+#           #println("a is negative and somehow the objective function is ok with that")
+#           #println(1.0*obj(x-α*Δx)[1], " WORDS ", (f+c.*αtemp.*▽'*Δx)[1])
+#           αlow = αtemp
+#           αtemp += (1-β)*(α-αlow)/2
+#         else
+#           α = αtemp
+#           αtemp *= β
+#         end
+#         a = obj(x-αtemp*Δx)[2]'*Δx
+#         k+=1
+#       end
     else
       # Do a backtracking line search to find an appropriate \alpha to scale by
       while obj(x-α*Δx)[1]>(f+c.*α.*▽'*Δx)[1]
         α*=β
       end
-      x = x - α*Δx
-      i+=1
-      if BFGS!=0
-        lastDelta = α*Δx
-      end
     end
-    println("alpha: ", α)
+    #println(α)
     x = x - α*Δx
     i+=1
     path = hcat(path, x)
     if BFGS!=0
-      lastValues = [α.*x,▽]
+      lastValues = [α*Δx ▽]
     end
   end
   return (i, minn, path, err)
 end
 
+function zoom(αlow, α, obj, ▽, Δx, ψlow, a, b, η, c, x, f)
+  for k=1:1000
+  #while abs(a[1]) > η.*abs(b[1])
+    αtemp = αlow + (α-αlow)/2 # interpolation would make this better
+    #println(αtemp, "∈(",αlow,",",α,")")
+    (ψα, ψp, bler) = obj(x-α*Δx)
+    a = ψp'*Δx
+    # the new point doesn't satisfy the Armijo conditions, or has a higher objective value than the αlow
+    if (ψlow <= ψα) | (ψα > (f+c.*αlow.*▽'*Δx)[1])
+      #println("breaks armijo")
+      α = αtemp
+    else
+      # we've reached the tolerance
+      if abs(a[1]) <= η.*abs(b[1])
+        return α = αtemp
+      end
+      if (ψp*(α-αlow))[1] >= 0
+        α = αlow
+        println("Somehow we got here?")
+      end
+      αlow = αtemp
+    end
+  end
+  println("TOO MANY")
+  return α
+end
